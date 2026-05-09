@@ -12,9 +12,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddCors(options => {
 options.AddDefaultPolicy(policy => {
-// Para desarrollo pueden usar AllowAnyOrigin()
-// Para producción, especifiquen su URL de Azure: .WithOrigins("https://mi-sitio.azurewebsites.net")
-policy.AllowAnyOrigin()
+// Permitir solo el origen del frontend desplegado (mejor seguridad que AllowAnyOrigin)
+// Reemplaza la URL si el frontend cambia.
+policy.WithOrigins("https://witty-tree-03ecea90f.7.azurestaticapps.net")
       .AllowAnyMethod()
       .AllowAnyHeader();
     });
@@ -44,8 +44,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 }
 
-// Ensure CORS middleware runs early so responses (including error responses)
-// include the appropriate CORS headers.
+// Use routing, then apply CORS so endpoint responses include the appropriate CORS headers.
+app.UseRouting();
 app.UseCors();
 
 // Global exception handler: returns a simple JSON error and ensures CORS header is present
@@ -64,7 +64,24 @@ app.UseExceptionHandler(errorApp =>
 
         var feature = context.Features.Get<IExceptionHandlerFeature>();
         var error = feature?.Error?.Message ?? "An unexpected error occurred.";
-        var payload = JsonSerializer.Serialize(new { error });
+        // Log the full exception server-side for diagnostics
+        if (feature?.Error != null)
+        {
+            Console.Error.WriteLine(feature.Error.ToString());
+        }
+
+        // Include stack trace in Development to help debug the 500 (do not enable in production)
+        object payloadObj;
+        if (app.Environment.IsDevelopment())
+        {
+            payloadObj = new { error, detail = feature?.Error?.ToString() };
+        }
+        else
+        {
+            payloadObj = new { error };
+        }
+
+        var payload = JsonSerializer.Serialize(payloadObj);
         await context.Response.WriteAsync(payload);
     });
 });
