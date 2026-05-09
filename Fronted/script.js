@@ -1,5 +1,5 @@
 ﻿// SUSTITUYE ESTO POR LA URL DE TU API EN AZURE (Ej. https://tu-api.azurewebsites.net/api/pacientes)
-const API_URL = "https://TU_URL_DE_AZURE_AQUÍ/api/pacientes";
+const API_URL = "https://segundoparcial3364.azurewebsites.net/scalar/#tag/pacientes/POST/api/Pacientes";
 
 // 1. Cargar Pacientes (GET)
 async function cargarPacientes() {
