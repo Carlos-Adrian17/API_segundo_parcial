@@ -21,7 +21,7 @@ async function cargarPacientes() {
             tr.innerHTML = `
                 <td>${paciente.pacienteId || 'N/A'}</td>
                 <td>${paciente.nombreCompleto || 'Desconocido'}</td>
-                <td>${paciente.nivelGravedad}</td>
+                <td>${paciente.sintomas || 'No registrados'}</td> <td>${paciente.nivelGravedad}</td>
                 <td>${paciente.estado || 'En espera'}</td>
                 <td>${paciente.medicoResponsable || 'N/A'}</td>
             `;
@@ -38,12 +38,13 @@ document.getElementById('formRegistro').addEventListener('submit', async functio
     const alertaDiv = document.getElementById('alertaFormulario');
     alertaDiv.innerHTML = '';
 
-    // Construimos el objeto SOLO con las columnas que tienes en tu BD
+    // Construimos el objeto con TODAS las columnas que tienes en tu BD
     const nuevoPaciente = {
         nombreCompleto: document.getElementById('nombre').value,
+        sintomas: document.getElementById('sintomas').value, // Ya se enviará a la base de datos
         nivelGravedad: parseInt(document.getElementById('gravedad').value),
         medicoResponsable: document.getElementById('carnetMedico').value,
-        estado: "En espera", // Valor por defecto sugerido
+        estado: "En espera", // Valor por defecto
         fechaIngreso: new Date().toISOString() // Genera la fecha actual automáticamente
     };
 
