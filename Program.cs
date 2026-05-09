@@ -7,6 +7,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+builder.Services.AddCors(options => {
+options.AddDefaultPolicy(policy => {
+// Para desarrollo pueden usar AllowAnyOrigin()
+// Para producción, especifiquen su URL de Azure: .WithOrigins("https://mi-sitio.azurewebsites.net")
+policy.AllowAnyOrigin()
+      .AllowAnyMethod()
+      .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddOpenApi();
 
 // 1. Extraer la cadena de conexión del appsettings.json
@@ -32,6 +43,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 
