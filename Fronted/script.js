@@ -1,5 +1,5 @@
-﻿// SUSTITUYE ESTO POR LA URL DE TU API EN AZURE 
-const API_URL = "https://tu-api-backend.azurewebsites.net/api/pacientes";
+﻿// SUSTITUYE ESTO POR LA URL DE TU API EN AZURE (Ej. https://tu-api.azurewebsites.net/api/pacientes)
+const API_URL = "https://TU_URL_DE_AZURE_AQUÍ/api/pacientes";
 
 // 1. Cargar Pacientes (GET)
 async function cargarPacientes() {
@@ -11,18 +11,19 @@ async function cargarPacientes() {
         const tbody = document.getElementById('tablaPacientesBody');
         tbody.innerHTML = '';
 
-        // Renderizar cada paciente
         pacientes.forEach(paciente => {
-            // Fila roja clara si la gravedad es 5 
+            // Fila roja clara si la gravedad es 5 (Requerimiento de la hoja)
             const esGrave = paciente.nivelGravedad === 5 ? 'table-danger' : '';
 
             const tr = document.createElement('tr');
             tr.className = esGrave;
+            // Usamos los nombres exactos que .NET genera basados en tu base de datos (camelCase)
             tr.innerHTML = `
-                <td>${paciente.idPaciente}</td>
-                <td>${paciente.nombreCompleto}</td>
+                <td>${paciente.pacienteId || 'N/A'}</td>
+                <td>${paciente.nombreCompleto || 'Desconocido'}</td>
                 <td>${paciente.nivelGravedad}</td>
-                <td>${paciente.estado}</td>
+                <td>${paciente.estado || 'En espera'}</td>
+                <td>${paciente.medicoResponsable || 'N/A'}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -37,12 +38,13 @@ document.getElementById('formRegistro').addEventListener('submit', async functio
     const alertaDiv = document.getElementById('alertaFormulario');
     alertaDiv.innerHTML = '';
 
-    // Obtener valores del formulario [cite: 76]
+    // Construimos el objeto SOLO con las columnas que tienes en tu BD
     const nuevoPaciente = {
         nombreCompleto: document.getElementById('nombre').value,
-        sintomas: document.getElementById('sintomas').value,
         nivelGravedad: parseInt(document.getElementById('gravedad').value),
-        carnetMedico: document.getElementById('carnetMedico').value
+        medicoResponsable: document.getElementById('carnetMedico').value,
+        estado: "En espera", // Valor por defecto sugerido
+        fechaIngreso: new Date().toISOString() // Genera la fecha actual automáticamente
     };
 
     try {
@@ -54,17 +56,14 @@ document.getElementById('formRegistro').addEventListener('submit', async functio
             body: JSON.stringify(nuevoPaciente)
         });
 
-        // Validar si el carnet del médico es inválido (Error 401 u otro error de negocio) [cite: 95]
         if (respuesta.status === 401 || !respuesta.ok) {
-            alertaDiv.innerHTML = `<div class="alert alert-danger">Acceso Denegado: Carnet de médico no válido.</div>`;[cite: 78]
+            alertaDiv.innerHTML = `<div class="alert alert-danger">Error: Acceso Denegado o datos inválidos.</div>`;
             return;
         }
 
-        // Si es exitoso
         alertaDiv.innerHTML = `<div class="alert alert-success">Paciente registrado exitosamente.</div>`;
         document.getElementById('formRegistro').reset();
 
-        // Refrescar el tablero (opcional pero recomendado)
         cargarPacientes();
 
     } catch (error) {

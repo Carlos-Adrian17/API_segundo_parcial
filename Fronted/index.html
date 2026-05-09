@@ -32,6 +32,7 @@
                                 <th>Nombre Completo</th>
                                 <th>Gravedad (1-5)</th>
                                 <th>Estado</th>
+                                <th>Médico Responsable</th>
                             </tr>
                         </thead>
                         <tbody id="tablaPacientesBody">
@@ -42,14 +43,15 @@
 
             <div class="tab-pane fade" id="registro" role="tabpanel">
                 <h4 class="mb-3">Registrar Nuevo Paciente</h4>
-                <div id="alertaFormulario"></div> <form id="formRegistro">
+                <div id="alertaFormulario"></div>
+                <form id="formRegistro">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre Completo</label>
                         <input type="text" class="form-control" id="nombre" required>
                     </div>
                     <div class="mb-3">
                         <label for="sintomas" class="form-label">Síntomas</label>
-                        <textarea class="form-control" id="sintomas" rows="3" required></textarea>
+                        <textarea class="form-control" id="sintomas" rows="3" placeholder="Se requieren según instrucciones, pero no se guardan en la BD actual"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="gravedad" class="form-label">Gravedad (1-5)</label>
