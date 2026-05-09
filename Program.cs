@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics;
+using System.Text.Json;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,9 +44,32 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 }
 
-app.UseHttpsRedirection();
-
+// Ensure CORS middleware runs early so responses (including error responses)
+// include the appropriate CORS headers.
 app.UseCors();
+
+// Global exception handler: returns a simple JSON error and ensures CORS header is present
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        // In case CORS headers are not already applied, ensure the allowed origin is present
+        if (!context.Response.Headers.ContainsKey("Access-Control-Allow-Origin"))
+        {
+            context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        }
+
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        var error = feature?.Error?.Message ?? "An unexpected error occurred.";
+        var payload = JsonSerializer.Serialize(new { error });
+        await context.Response.WriteAsync(payload);
+    });
+});
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
